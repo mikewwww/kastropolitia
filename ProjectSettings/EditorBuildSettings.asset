@@ -6,8 +6,17 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/OutdoorsScene.unity
-    guid: 8124e5870f4fd4c779e7a5f994e84ad1
+    path: Assets/Scenes/MaIn/MainScene.unity
+    guid: 562d023e68817cc4fada8b0d9a6fbf9b
+  - enabled: 1
+    path: Assets/Scenes/MaIn/Market.unity
+    guid: 860d11a2f115b094aa9e6f6554c457b9
+  - enabled: 1
+    path: Assets/Scenes/MaIn/CastleScene.unity
+    guid: e0411683c7a33624e88ccea4cdb98672
+  - enabled: 1
+    path: Assets/Scenes/MaIn/Trees.unity
+    guid: 12d9cebb8ce16864ab7cf547d77b3d62
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 35845fe01580c41289b024647b1d1c53, type: 3}
   m_UseUCBPForAssetBundles: 0
