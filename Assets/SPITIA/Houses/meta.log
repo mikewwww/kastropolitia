@@ -1,0 +1,43 @@
+{
+    "file_input": null,
+    "file_output": null,
+    "generator": "File produced by Amaz3D Software",
+    "info": {
+        "AMAZ3D_VERSION": "1.4.212",
+        "METADATA_VERSION": "1.1",
+        "date_GMT": "Fri May 30 16:18:44 2025",
+        "normal_map_suffix": "_normal"
+    },
+    "materials": null,
+    "optimization": {
+        "errors": [
+            "[ERROR] Unsupported input file format: .prefab\n"
+        ],
+        "timers": {
+            "TOTAL": null
+        },
+        "triangles_end": null,
+        "triangles_reduction": null,
+        "triangles_start": null,
+        "warnings": null
+    },
+    "options": {
+        "config_filepath": "",
+        "face_reduction": 0.30000001192092896,
+        "input_filepath": "C:/Data/git hub codes/kastropolitia/Assets/SPITIA/Houses/BigCafe.prefab",
+        "merge_duplicated_uv": true,
+        "minimum_face_number": 0,
+        "output_filepath": "C:\\Data\\git hub codes\\kastropolitia\\Assets\\SPITIA\\Houses\\BigCafe_OPT.prefab",
+        "preserve_boundary_edges": 1.0,
+        "preserve_hard_edges": true,
+        "preserve_smooth_edges": true,
+        "project_normals": false,
+        "remove_degenerate_faces": true,
+        "remove_duplicated_boundary_vertices": true,
+        "remove_duplicated_faces": true,
+        "remove_isolated_vertices": true,
+        "remove_non_manifold_faces": false,
+        "retexture": 2,
+        "target_num_faces": -1
+    }
+}

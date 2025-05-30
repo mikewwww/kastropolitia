@@ -9,5 +9,6 @@ public class LoadScenes : MonoBehaviour
         SceneManager.LoadScene("Market", LoadSceneMode.Additive);
         SceneManager.LoadScene("CastleScene", LoadSceneMode.Additive);
         SceneManager.LoadScene("Trees", LoadSceneMode.Additive);
+        SceneManager.LoadScene("Houses", LoadSceneMode.Additive);
     }
 }
