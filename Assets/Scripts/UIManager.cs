@@ -1,193 +1,95 @@
 ﻿using UnityEngine;
-using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
-    public GameObject crosshair;
-    public CanvasGroup helpCanvasGroup;
     public CanvasGroup pauseMenuCanvasGroup;
-    public CanvasGroup inventoryPanel;
+    public CanvasGroup helpCanvasGroup;
+    public CanvasGroup inventoryCanvasGroup;
 
-    private bool isHelpVisible = false;
     private bool isPaused = false;
+    private bool isHelpVisible = false;
     private bool isInventoryOpen = false;
-    private bool cameFromPause = false;
-    private float fadeDuration = 0.3f;
-
-    private CameraFollow cameraFollow;
-
-    void Start()
-    {
-        cameraFollow = Camera.main.GetComponent<CameraFollow>();
-
-        if (crosshair != null)
-            crosshair.SetActive(cameraFollow.IsFirstPerson());
-
-        if (helpCanvasGroup != null)
-        {
-            helpCanvasGroup.alpha = 0f;
-            helpCanvasGroup.interactable = false;
-            helpCanvasGroup.blocksRaycasts = false;
-        }
-
-        if (pauseMenuCanvasGroup != null)
-        {
-            pauseMenuCanvasGroup.alpha = 0f;
-            pauseMenuCanvasGroup.interactable = false;
-            pauseMenuCanvasGroup.blocksRaycasts = false;
-        }
-
-        if (inventoryPanel != null)
-        {
-            inventoryPanel.alpha = 0f;
-            inventoryPanel.interactable = false;
-            inventoryPanel.blocksRaycasts = false;
-        }
-
-        Time.timeScale = 1f;
-    }
 
     void Update()
     {
-        if (cameraFollow != null && crosshair != null)
-            crosshair.SetActive(cameraFollow.IsFirstPerson());
-
-        // Κλείσιμο Help με ESC ή H
-        if ((Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.H)) && isHelpVisible)
-        {
-            CloseHelp();
-        }
-        else if (Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.Escape) && !IsOtherUIOpen())
         {
             if (!isPaused)
                 ShowPauseMenu();
             else
                 ResumeGame();
         }
-        else if (Input.GetKeyDown(KeyCode.H) && !isPaused && !isHelpVisible)
+
+        if (Input.GetKeyDown(KeyCode.H) && !isPaused && !isHelpVisible && !IsOtherUIOpen())
         {
             OpenHelp();
         }
-
-        // Inventory toggle με I
-        if (Input.GetKeyDown(KeyCode.I))
+        else if (Input.GetKeyDown(KeyCode.H) && isHelpVisible)
         {
-            isInventoryOpen = !isInventoryOpen;
+            CloseHelp();
+        }
 
-            if (inventoryPanel != null)
-            {
-                inventoryPanel.alpha = isInventoryOpen ? 1f : 0f;
-                inventoryPanel.interactable = isInventoryOpen;
-                inventoryPanel.blocksRaycasts = isInventoryOpen;
-            }
-
-            Cursor.visible = isInventoryOpen || cameraFollow.IsFirstPerson();
-            Cursor.lockState = (isInventoryOpen || cameraFollow.IsFirstPerson()) ? CursorLockMode.None : CursorLockMode.Locked;
+        if (Input.GetKeyDown(KeyCode.I) && !isPaused && !IsOtherUIOpen())
+        {
+            ToggleInventory();
         }
     }
 
-    private void OpenHelp()
+    private bool IsOtherUIOpen()
     {
-        isHelpVisible = true;
+        GameObject shop = GameObject.Find("ShopUI");
+        GameObject questGiver = GameObject.Find("QuestUI_Giver");
+        GameObject questComplete = GameObject.Find("QuestUI_Complete");
 
-        if (helpCanvasGroup != null)
-        {
-            StopAllCoroutines();
-            StartCoroutine(FadeCanvasGroup(helpCanvasGroup, helpCanvasGroup.alpha, 1f));
-            helpCanvasGroup.interactable = true;
-            helpCanvasGroup.blocksRaycasts = true;
-        }
-
-        Cursor.visible = true;
-        Cursor.lockState = CursorLockMode.None;
+        return (shop != null && shop.activeSelf) ||
+               (questGiver != null && questGiver.activeSelf) ||
+               (questComplete != null && questComplete.activeSelf);
     }
 
-    private void CloseHelp()
+    public void ShowPauseMenu()
     {
-        isHelpVisible = false;
-
-        if (helpCanvasGroup != null)
-        {
-            StopAllCoroutines();
-            StartCoroutine(FadeCanvasGroup(helpCanvasGroup, helpCanvasGroup.alpha, 0f));
-            helpCanvasGroup.interactable = false;
-            helpCanvasGroup.blocksRaycasts = false;
-        }
-
-        if (cameFromPause)
-        {
-            cameFromPause = false;
-            Invoke("ShowPauseMenu", 0.01f); // Καθυστέρηση 1 frame
-        }
-        else
-        {
-            isPaused = false;
-            Time.timeScale = 1f;
-
-            Cursor.visible = cameraFollow.IsFirstPerson();
-            Cursor.lockState = cameraFollow.IsFirstPerson() ? CursorLockMode.Locked : CursorLockMode.None;
-        }
+        isPaused = true;
+        Time.timeScale = 0f;
+        SetCanvasGroup(pauseMenuCanvasGroup, true);
     }
 
     public void ResumeGame()
     {
         isPaused = false;
-
-        if (pauseMenuCanvasGroup != null)
-        {
-            StopAllCoroutines();
-            StartCoroutine(FadeCanvasGroup(pauseMenuCanvasGroup, pauseMenuCanvasGroup.alpha, 0f));
-            pauseMenuCanvasGroup.interactable = false;
-            pauseMenuCanvasGroup.blocksRaycasts = false;
-        }
-
         Time.timeScale = 1f;
-        Cursor.lockState = cameraFollow.IsFirstPerson() ? CursorLockMode.Locked : CursorLockMode.None;
-        Cursor.visible = !cameraFollow.IsFirstPerson();
+        SetCanvasGroup(pauseMenuCanvasGroup, false);
     }
 
-    private void ShowPauseMenu()
+    public void OpenHelp()
     {
-        isPaused = true;
+        isHelpVisible = true;
+        SetCanvasGroup(helpCanvasGroup, true);
+    }
 
-        if (pauseMenuCanvasGroup != null)
-        {
-            StopAllCoroutines();
-            StartCoroutine(FadeCanvasGroup(pauseMenuCanvasGroup, pauseMenuCanvasGroup.alpha, 1f));
-            pauseMenuCanvasGroup.interactable = true;
-            pauseMenuCanvasGroup.blocksRaycasts = true;
-        }
+    public void CloseHelp()
+    {
+        isHelpVisible = false;
+        SetCanvasGroup(helpCanvasGroup, false);
+    }
 
-        Time.timeScale = 0f;
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
+    public void ToggleInventory()
+    {
+        isInventoryOpen = !isInventoryOpen;
+        SetCanvasGroup(inventoryCanvasGroup, isInventoryOpen);
+    }
+
+    private void SetCanvasGroup(CanvasGroup group, bool visible)
+    {
+        if (group == null) return;
+
+        group.alpha = visible ? 1 : 0;
+        group.interactable = visible;
+        group.blocksRaycasts = visible;
     }
 
     public bool IsHelpMenuOpen()
     {
         return isHelpVisible;
-    }
-
-    public void QuitGame()
-    {
-        Debug.Log("Exit pressed");
-
-#if UNITY_EDITOR
-        UnityEditor.EditorApplication.isPlaying = false;
-#else
-        Application.Quit();
-#endif
-    }
-
-    private System.Collections.IEnumerator FadeCanvasGroup(CanvasGroup cg, float start, float end)
-    {
-        float t = 0f;
-        while (t < fadeDuration)
-        {
-            t += Time.unscaledDeltaTime;
-            cg.alpha = Mathf.Lerp(start, end, t / fadeDuration);
-            yield return null;
-        }
-        cg.alpha = end;
     }
 }

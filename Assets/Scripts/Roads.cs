@@ -29,7 +29,6 @@ namespace Unity.Splines.Examples
                     if (width.DefaultValue == 0)
                         width.DefaultValue = 1f;
                 }
-
                 return m_Widths;
             }
         }
@@ -43,7 +42,6 @@ namespace Unity.Splines.Examples
             {
                 if (m_Spline == null)
                     m_Spline = GetComponent<SplineContainer>();
-
                 return m_Spline;
             }
             set => m_Spline = value;
@@ -72,7 +70,6 @@ namespace Unity.Splines.Examples
                     Debug.LogError("Cannot loft road mesh because Spline reference is null");
                     return null;
                 }
-
                 return m_Spline.Splines;
             }
         }
@@ -85,7 +82,6 @@ namespace Unity.Splines.Examples
             {
                 if (m_Mesh != null)
                     return m_Mesh;
-
                 m_Mesh = new Mesh();
                 GetComponent<MeshRenderer>().sharedMaterial = Resources.Load<Material>("Road");
                 return m_Mesh;
@@ -140,7 +136,6 @@ namespace Unity.Splines.Examples
             EditorSplineUtility.UnregisterSplineDataChanged<float>(OnAfterSplineDataWasModified);
             Undo.undoRedoPerformed -= LoftAllRoads;
 #endif
-
             if (m_Mesh != null)
 #if UNITY_EDITOR
                 DestroyImmediate(m_Mesh);
@@ -230,11 +225,21 @@ namespace Unity.Splines.Examples
             }
         }
 
-        // Εδώ προσθέτουμε την μέθοδο OnValidate
+        // Σχολίασες το OnValidate για να αποφύγουμε κλήσεις στο κατάλληλο στάδιο εκκίνησης
+        /*
         private void OnValidate()
         {
-            LoftAllRoads(); // Καλούμε το LoftAllRoads όταν αλλάξουμε τιμές στο Inspector
+            LoftAllRoads();
         }
+        */
+
+#if UNITY_EDITOR
+        // Μέθοδος για rebuilding των δρόμων από τον Editor
+        public void RebuildRoads()
+        {
+            LoftAllRoads();
+        }
+#endif
 
         public void LoftAllRoads()
         {
@@ -275,7 +280,7 @@ namespace Unity.Splines.Examples
 
             var segmentsPerLength = SegmentsPerMeter * length;
             var segments = Mathf.CeilToInt(segmentsPerLength);
-            var segmentStepT = 1f / segments; // Βήμα ανά segment
+            var segmentStepT = 1f / segments;
             var steps = segments + 1;
             var vertexCount = steps * 2;
             var triangleCount = segments * 6;
@@ -308,7 +313,6 @@ namespace Unity.Splines.Examples
 
                 var tangent = math.normalizesafe(math.cross(up, dir));
 
-                // Ελέγχουμε το πλάτος με την τιμή από το m_Widths
                 var w = 1f;
                 if (widthDataIndex < m_Widths.Count)
                 {
@@ -320,10 +324,8 @@ namespace Unity.Splines.Examples
                     }
                 }
 
-                // Αλλάζουμε το πλάτος του δρόμου εδώ, αυξάνοντας την τιμή του w
-                w *= 2f; // Αύξηση του πλάτους (π.χ. κάνοντας το 2 φορές πιο πλατύ)
+                w *= 2f;
 
-                // Προσθήκη vertices με το νέο πλάτος
                 m_Positions.Add(pos - (tangent * w));
                 m_Positions.Add(pos + (tangent * w));
                 m_Normals.Add(up);
@@ -344,6 +346,5 @@ namespace Unity.Splines.Examples
                 m_Indices.Add((n + 1) % (prevVertexCount + vertexCount));
             }
         }
-
     }
 }

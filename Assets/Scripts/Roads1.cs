@@ -29,7 +29,6 @@ namespace Unity.Splines.Examples
                     if (width.DefaultValue == 0)
                         width.DefaultValue = 1f;
                 }
-
                 return m_Widths;
             }
         }
@@ -43,7 +42,6 @@ namespace Unity.Splines.Examples
             {
                 if (m_Spline == null)
                     m_Spline = GetComponent<SplineContainer>();
-
                 return m_Spline;
             }
             set => m_Spline = value;
@@ -230,10 +228,12 @@ namespace Unity.Splines.Examples
             }
         }
 
-        private void OnValidate()
+#if UNITY_EDITOR
+        public void RebuildRoads()
         {
             LoftAllRoads();
         }
+#endif
 
         public void LoftAllRoads()
         {
@@ -268,7 +268,6 @@ namespace Unity.Splines.Examples
             LoftMesh.Clear();
 
             float length = spline.GetLength();
-
             if (length <= 0.001f)
                 return;
 
@@ -294,19 +293,16 @@ namespace Unity.Splines.Examples
                 {
                     var nextPos = spline.GetPointAtLinearDistance(t, 0.01f, out _);
                     dir = math.normalizesafe(nextPos - pos);
-
                     if (math.length(dir) == 0)
                     {
                         nextPos = spline.GetPointAtLinearDistance(t, -0.01f, out _);
                         dir = -math.normalizesafe(nextPos - pos);
                     }
-
                     if (math.length(dir) == 0)
                         dir = new float3(0, 0, 1);
                 }
 
                 var tangent = math.normalizesafe(math.cross(up, dir));
-
                 var w = 1f;
                 if (widthDataIndex < m_Widths.Count)
                 {
@@ -340,6 +336,5 @@ namespace Unity.Splines.Examples
                 m_Indices.Add((n + 1) % (prevVertexCount + vertexCount));
             }
         }
-
     }
 }
