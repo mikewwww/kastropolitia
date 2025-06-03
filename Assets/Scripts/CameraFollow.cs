@@ -56,6 +56,9 @@ public class CameraFollow : MonoBehaviour
 
     void Update()
     {
+        if (MouseManager.Instance != null && MouseManager.Instance.IsUIOpen())
+            return;
+
         if (uiManager != null && uiManager.IsHelpMenuOpen())
             return;
 
@@ -66,17 +69,14 @@ public class CameraFollow : MonoBehaviour
             foreach (Renderer r in playerRenderers)
                 r.enabled = !isFirstPerson;
 
-            Cursor.lockState = isFirstPerson ? CursorLockMode.Locked : CursorLockMode.None;
-            Cursor.visible = !isFirstPerson;
-
-            if (!isFirstPerson)
-            {
-                transitioningToThirdPerson = true;
-                cam.fieldOfView = Mathf.Clamp(cam.fieldOfView, minFov, maxFov);
-            }
+            MouseManager.Instance?.SetFirstPerson(isFirstPerson); // Ενημέρωση του MouseManager
         }
 
-        float scroll = Input.GetAxis("Mouse ScrollWheel");
+        
+    
+
+
+    float scroll = Input.GetAxis("Mouse ScrollWheel");
 
         if (isFirstPerson)
         {
@@ -170,4 +170,14 @@ public class CameraFollow : MonoBehaviour
     {
         return isFirstPerson;
     }
+    public static CameraFollow Instance;
+
+    void Awake()
+    {
+        if (Instance == null)
+            Instance = this;
+        else
+            Destroy(gameObject);
+    }
+
 }

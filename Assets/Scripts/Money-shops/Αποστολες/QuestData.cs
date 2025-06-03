@@ -4,7 +4,13 @@
 public class QuestData : ScriptableObject
 {
     public string questName;
+
+    [TextArea(3, 10)]
     public string description;
+
+    [TextArea(3, 10)]
+    public string completionDescription; // ✅ ΝΕΟ: για περιγραφή ολοκλήρωσης
+
     public bool isAccepted = false;
     public bool isCompleted = false;
 

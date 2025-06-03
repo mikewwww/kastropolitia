@@ -3,7 +3,6 @@
 public class QuestGiverNPC : MonoBehaviour
 {
     public QuestData quest;
-    public GameObject questUI;
     public QuestUIManager uiManager;
 
     private bool isPlayerInRange = false;
@@ -16,8 +15,8 @@ public class QuestGiverNPC : MonoBehaviour
 
             if (quest != null && !quest.isCompleted)
             {
-                questUI.SetActive(true);
-                uiManager.ShowQuestInfo(quest);
+                InteractionPrompt.Instance.HidePrompt();
+                uiManager.ShowQuestGiverUI(quest, this);
             }
             else
             {
@@ -28,23 +27,33 @@ public class QuestGiverNPC : MonoBehaviour
 
     public void AcceptQuest()
     {
+        Debug.Log($"📥 AcceptQuest CALLED for quest: {quest?.questName}");
+
         if (quest != null)
         {
-            quest.Accept();
-            questUI.SetActive(false);
+            quest.Accept();  // Αυτό αλλάζει το isAccepted
+            uiManager.HideQuestGiverUI();
+        }
+        else
+        {
+            Debug.LogWarning("⚠️ Quest is NULL!");
         }
     }
 
+
     public void CloseUI()
     {
-        if (questUI != null)
-            questUI.SetActive(false);
+        uiManager.HideQuestGiverUI();
     }
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
             isPlayerInRange = true;
+        if (!quest.isAccepted && !quest.isCompleted)
+        {
+            InteractionPrompt.Instance.ShowPrompt("Πάτα [E] για αποστολή");
+        }
     }
 
     private void OnTriggerExit(Collider other)
@@ -52,7 +61,8 @@ public class QuestGiverNPC : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             isPlayerInRange = false;
-            questUI.SetActive(false);
+            uiManager.HideQuestGiverUI();
+            InteractionPrompt.Instance.HidePrompt();
         }
     }
 }

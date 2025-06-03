@@ -1,9 +1,10 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "New Shop Item", menuName = "Shop/Shop Item")]
-public class ShopItem : ScriptableObject
+[System.Serializable]
+public class ShopItem
 {
     public string itemName;
-    public Sprite icon;          // Το sprite που θα μπει στο inventory
+    public string description;
+    public Sprite icon;
     public int price;
 }

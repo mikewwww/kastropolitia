@@ -3,7 +3,8 @@
 public class QuestCompleterNPC : MonoBehaviour
 {
     public QuestData quest;
-    public GameObject completionUI;
+    public QuestUIManager uiManager;
+    public PlayerWallet wallet;
     public int rewardAmount = 50;
 
     private bool isPlayerInRange = false;
@@ -16,11 +17,8 @@ public class QuestCompleterNPC : MonoBehaviour
 
             if (quest != null && quest.isAccepted && !quest.isCompleted)
             {
-                completionUI.SetActive(true);
-
-                QuestUIManager ui = completionUI.GetComponent<QuestUIManager>();
-                if (ui != null)
-                    ui.ShowQuestInfo(quest);
+                InteractionPrompt.Instance.HidePrompt();
+                uiManager.ShowQuestCompleteUI(quest, this); // <-- updated!
             }
             else
             {
@@ -29,7 +27,7 @@ public class QuestCompleterNPC : MonoBehaviour
         }
     }
 
-    public void CompleteQuest(PlayerWallet wallet)
+    public void CompleteQuest()
     {
         Debug.Log("🟢 Πατήθηκε το κουμπί Ολοκλήρωση.");
 
@@ -45,8 +43,6 @@ public class QuestCompleterNPC : MonoBehaviour
             return;
         }
 
-        Debug.Log($"🎯 Quest accepted: {quest.isAccepted}, completed: {quest.isCompleted}");
-
         if (quest.isAccepted && !quest.isCompleted)
         {
             quest.Complete();
@@ -58,19 +54,22 @@ public class QuestCompleterNPC : MonoBehaviour
             Debug.LogWarning("⚠️ Quest δεν έχει γίνει αποδεκτή ή έχει ήδη ολοκληρωθεί.");
         }
 
-        completionUI.SetActive(false);
+        uiManager.HideQuestCompleteUI();
     }
 
     public void CloseUI()
     {
-        if (completionUI != null)
-            completionUI.SetActive(false);
+        uiManager.HideQuestCompleteUI();
     }
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
             isPlayerInRange = true;
+        if (quest.isAccepted && !quest.isCompleted)
+        {
+            InteractionPrompt.Instance.ShowPrompt("Πάτα [E] για ολοκλήρωση αποστολής");
+        }
     }
 
     private void OnTriggerExit(Collider other)
@@ -78,7 +77,8 @@ public class QuestCompleterNPC : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             isPlayerInRange = false;
-            completionUI.SetActive(false);
+            uiManager.HideQuestCompleteUI();
+            InteractionPrompt.Instance.HidePrompt();
         }
     }
 }

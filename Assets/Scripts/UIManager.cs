@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
@@ -21,13 +20,12 @@ public class UIManager : MonoBehaviour
                 ResumeGame();
         }
 
-        if (Input.GetKeyDown(KeyCode.H) && !isPaused && !isHelpVisible && !IsOtherUIOpen())
+        if (Input.GetKeyDown(KeyCode.H) && !isPaused && !IsOtherUIOpen())
         {
-            OpenHelp();
-        }
-        else if (Input.GetKeyDown(KeyCode.H) && isHelpVisible)
-        {
-            CloseHelp();
+            if (!isHelpVisible)
+                OpenHelp();
+            else
+                CloseHelp();
         }
 
         if (Input.GetKeyDown(KeyCode.I) && !isPaused && !IsOtherUIOpen())
@@ -52,6 +50,7 @@ public class UIManager : MonoBehaviour
         isPaused = true;
         Time.timeScale = 0f;
         SetCanvasGroup(pauseMenuCanvasGroup, true);
+        FindObjectOfType<MouseManager>()?.SetUIOpen(true);
     }
 
     public void ResumeGame()
@@ -59,37 +58,64 @@ public class UIManager : MonoBehaviour
         isPaused = false;
         Time.timeScale = 1f;
         SetCanvasGroup(pauseMenuCanvasGroup, false);
+        CheckAnyUIStillOpen();
+    }
+
+    public void QuitGame()
+    {
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
     }
 
     public void OpenHelp()
     {
         isHelpVisible = true;
         SetCanvasGroup(helpCanvasGroup, true);
+        FindObjectOfType<MouseManager>()?.SetUIOpen(true);
     }
 
     public void CloseHelp()
     {
         isHelpVisible = false;
         SetCanvasGroup(helpCanvasGroup, false);
+        CheckAnyUIStillOpen();
     }
 
     public void ToggleInventory()
     {
         isInventoryOpen = !isInventoryOpen;
         SetCanvasGroup(inventoryCanvasGroup, isInventoryOpen);
+        FindObjectOfType<MouseManager>()?.SetUIOpen(isInventoryOpen);
     }
 
     private void SetCanvasGroup(CanvasGroup group, bool visible)
     {
         if (group == null) return;
 
+        group.gameObject.SetActive(visible);
         group.alpha = visible ? 1 : 0;
         group.interactable = visible;
         group.blocksRaycasts = visible;
     }
 
+    private void CheckAnyUIStillOpen()
+    {
+        if (!isHelpVisible && !isInventoryOpen && !isPaused && !IsOtherUIOpen())
+        {
+            FindObjectOfType<MouseManager>()?.SetUIOpen(false);
+        }
+    }
+
     public bool IsHelpMenuOpen()
     {
         return isHelpVisible;
+    }
+
+    public void ToggleMusic()
+    {
+        AudioManager.Instance?.ToggleMusic();
     }
 }

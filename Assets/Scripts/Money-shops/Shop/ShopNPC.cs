@@ -1,29 +1,30 @@
-using UnityEngine;
+﻿using UnityEngine;
+using System.Collections.Generic;
 
 public class ShopNPC : MonoBehaviour
 {
-    public GameObject shopUI;
-    public PlayerWallet playerWallet;
-    public InventoryManager inventoryManager;
-    public ShopUIManager shopManager;
+    public ShopUIManager shopUIManager; // Αντιστοιχεί στο κοινό Shop UI
+    public List<ShopItem> myShopItems;  // Τα αντικείμενα που πουλάει αυτός ο NPC
 
-    private bool playerInRange = false;
+    private bool playerInRange;
 
     private void Update()
     {
         if (playerInRange && Input.GetKeyDown(KeyCode.E))
         {
-            if (shopUI.activeSelf)
-                CloseShop();
-            else
-                OpenShop();
+            InteractionPrompt.Instance.HidePrompt();
+            shopUIManager.OpenShop(myShopItems);
         }
     }
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
+        {
             playerInRange = true;
+            // ➕ Προσθήκη prompt ανάλογα με τον τύπο NPC
+            InteractionPrompt.Instance.ShowPrompt("Πάτα [E] για το κατάστημα");
+        }
     }
 
     private void OnTriggerExit(Collider other)
@@ -31,38 +32,7 @@ public class ShopNPC : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             playerInRange = false;
-            CloseShop();
+            InteractionPrompt.Instance.HidePrompt();
         }
-    }
-
-    public void OpenShop()
-    {
-        shopUI.SetActive(true);
-    }
-
-    public void CloseShop()
-    {
-        shopUI.SetActive(false);
-    }
-
-    public void BuySelectedItem()
-    {
-        ShopItem item = shopManager.GetSelectedItem();
-
-        if (item == null)
-        {
-            Debug.LogWarning("No item selected.");
-            return;
-        }
-
-        if (!playerWallet.HasEnoughGold(item.price))
-        {
-            Debug.LogWarning("Not enough gold.");
-            return;
-        }
-
-        playerWallet.RemoveGold(item.price);
-        inventoryManager.AddItem(item.icon);
-        Debug.Log($"Item {item.itemName} bought!");
     }
 }

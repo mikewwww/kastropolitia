@@ -3,7 +3,8 @@ using UnityEngine;
 [RequireComponent(typeof(CharacterController))]
 public class PlayerMovement : MonoBehaviour
 {
-    public float moveSpeed = 5f;
+    public float walkSpeed = 5f;
+    public float runSpeed = 9f;
     public float rotationSpeed = 100f; // Περιστροφή με τα βελάκια
     private CharacterController controller;
     private Vector3 moveDirection;
@@ -20,7 +21,9 @@ public class PlayerMovement : MonoBehaviour
         float moveZ = Input.GetAxis("Vertical"); // Μόνο μπροστά-πίσω
         float rotate = Input.GetAxis("Horizontal"); // Περιστροφή δεξιά-αριστερά
         bool isWalking = animator.GetBool("isWalking");
-        
+
+        // Καθορισμός ταχύτητας ανάλογα με το αν πατιέται Shift
+        float currentSpeed = Input.GetKey(KeyCode.LeftShift) ? runSpeed : walkSpeed;
 
         // Περιστροφή με ομαλή κίνηση
         if (Mathf.Abs(rotate) > 0.1f)
@@ -31,13 +34,16 @@ public class PlayerMovement : MonoBehaviour
 
         // Κίνηση μόνο μπροστά-πίσω, στην κατεύθυνση που κοιτάει ο παίκτης
         moveDirection = transform.forward * moveZ;
-        controller.Move(moveDirection * moveSpeed * Time.deltaTime);
-       if(Mathf.Abs(moveZ)> 0.1f){
-        animator.SetBool("isWalking", true);
-       }
-       else
-       {
-        animator.SetBool("isWalking",false);
-       }
+        controller.Move(moveDirection * currentSpeed * Time.deltaTime);
+
+        // Animation ελέγχου βάδισης
+        if (Mathf.Abs(moveZ) > 0.1f)
+        {
+            animator.SetBool("isWalking", true);
+        }
+        else
+        {
+            animator.SetBool("isWalking", false);
+        }
     }
 }
