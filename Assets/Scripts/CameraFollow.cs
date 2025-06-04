@@ -123,7 +123,7 @@ public class CameraFollow : MonoBehaviour
 
         if (isFirstPerson)
         {
-            Vector3 desiredPosition = target.position + new Vector3(0, firstPersonOffset.y, 0);
+            Vector3 desiredPosition = target.TransformPoint(firstPersonOffset);
             transform.position = desiredPosition;
             transform.rotation = Quaternion.Euler(currentPitch, target.eulerAngles.y, 0);
         }

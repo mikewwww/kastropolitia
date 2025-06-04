@@ -2,54 +2,54 @@
 
 public class QuestGiverNPC : MonoBehaviour
 {
-    public QuestData quest;
-    public QuestUIManager uiManager;
+    [SerializeField] private QuestData quest;
+    [SerializeField] private QuestUIManager uiManager;
 
-    private bool isPlayerInRange = false;
+    [Header("Minimap Icon")]
+    [SerializeField] private GameObject questStartIcon;
 
-    void Update()
+    private bool isPlayerInRange;
+
+    private void Update()
     {
-        if (isPlayerInRange && Input.GetKeyDown(KeyCode.E))
+        if (Input.GetKeyDown(KeyCode.E) && isPlayerInRange)
         {
-            Debug.Log($"🔍 Πατήθηκε E στον QuestGiver - quest = {quest}, completed = {quest?.isCompleted}");
-
-            if (quest != null && !quest.isCompleted)
+            if (!quest.isAccepted && !quest.isCompleted)
             {
-                InteractionPrompt.Instance.HidePrompt();
                 uiManager.ShowQuestGiverUI(quest, this);
+                InteractionPrompt.Instance.HidePrompt();
             }
-            else
-            {
-                Debug.LogWarning("⚠️ Quest is null ή ήδη completed!");
-            }
+        }
+
+        UpdateIconVisibility();
+    }
+
+    private void UpdateIconVisibility()
+    {
+        if (questStartIcon != null)
+        {
+            questStartIcon.SetActive(!quest.isAccepted && !quest.isCompleted);
         }
     }
 
     public void AcceptQuest()
     {
-        Debug.Log($"📥 AcceptQuest CALLED for quest: {quest?.questName}");
-
-        if (quest != null)
-        {
-            quest.Accept();  // Αυτό αλλάζει το isAccepted
-            uiManager.HideQuestGiverUI();
-        }
-        else
-        {
-            Debug.LogWarning("⚠️ Quest is NULL!");
-        }
+        quest.Accept();
+        uiManager.HideQuestGiverUI();
     }
 
-
-    public void CloseUI()
+    public void CancelQuest()
     {
         uiManager.HideQuestGiverUI();
     }
 
+
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player"))
-            isPlayerInRange = true;
+        if (!other.CompareTag("Player")) return;
+
+        isPlayerInRange = true;
+
         if (!quest.isAccepted && !quest.isCompleted)
         {
             InteractionPrompt.Instance.ShowPrompt("Πάτα [E] για αποστολή");
@@ -58,11 +58,9 @@ public class QuestGiverNPC : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.CompareTag("Player"))
-        {
-            isPlayerInRange = false;
-            uiManager.HideQuestGiverUI();
-            InteractionPrompt.Instance.HidePrompt();
-        }
+        if (!other.CompareTag("Player")) return;
+
+        isPlayerInRange = false;
+        InteractionPrompt.Instance.HidePrompt();
     }
 }

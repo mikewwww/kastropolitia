@@ -7,6 +7,9 @@ public class QuestCompleterNPC : MonoBehaviour
     public PlayerWallet wallet;
     public int rewardAmount = 50;
 
+    [Header("Minimap Icon")]
+    [SerializeField] private GameObject questCompleteIcon;
+
     private bool isPlayerInRange = false;
 
     void Update()
@@ -18,12 +21,22 @@ public class QuestCompleterNPC : MonoBehaviour
             if (quest != null && quest.isAccepted && !quest.isCompleted)
             {
                 InteractionPrompt.Instance.HidePrompt();
-                uiManager.ShowQuestCompleteUI(quest, this); // <-- updated!
+                uiManager.ShowQuestCompleteUI(quest, this);
             }
             else
             {
                 Debug.LogWarning("⚠️ Quest δεν είναι έτοιμη για ολοκλήρωση ή έχει ήδη ολοκληρωθεί.");
             }
+        }
+
+        UpdateIconVisibility();
+    }
+
+    private void UpdateIconVisibility()
+    {
+        if (questCompleteIcon != null)
+        {
+            questCompleteIcon.SetActive(quest.isAccepted && !quest.isCompleted);
         }
     }
 
